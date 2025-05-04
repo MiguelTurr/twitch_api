@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=, initial-scale=1.0">
+    <title>Read Chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body style="background-color: rgb(2, 6, 23)">
+
+    <div class="flex flex-col min-h-screen">
+        
+        <div class="absolute top-0 z-[-2] h-screen w-full bg-dark-50 dark:bg-dark-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-30%,rgba(0,200,255,0.25),rgba(255,255,255,0))]"></div>
+
+        <section class="min-h-screen flex flex-col relative text-white p-6 pt-10 lg:w-[740px] mx-auto" id="inicio">
+            
+            <div class="flex items-center justify-center p-4 mb-2">
+                <div class="w-full">
+                    
+                    <article class="mt-4 flex flex-col px-6 py-6 rounded-2xl bg-gradient-to-r from-gray-900 to-gray-800">
+
+                        <div class="flex items-center justify-center" id="read_chat_message">¡Pulsa el botón para empezar!</div>
+
+                        <div class="flex justify-center mt-4">
+                            <button
+                                type="type"
+                                class="bg-green-600 text-white px-6 py-2 rounded-xl shadow-md hover:bg-green-700 active:scale-95 transition-all duration-150 font-semibold flex gap-2 cursor-pointer justify-end disabled:opacity-50 disabled:cursor-not-allowed"
+                                id="read_chat_btn"
+                                onclick="empezarLeerChat()"
+                                >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plug-zap-icon lucide-plug-zap"><path d="M6.3 20.3a2.4 2.4 0 0 0 3.4 0L12 18l-6-6-2.3 2.3a2.4 2.4 0 0 0 0 3.4Z"/><path d="m2 22 3-3"/><path d="M7.5 13.5 10 11"/><path d="M10.5 16.5 13 14"/><path d="m18 3-4 4h6l-4 4"/></svg>
+                                Empezar
+                            </button>
+                        </div>
+
+                    </article>
+                </div>
+            </div>
+        </section>
+
+    <script>
+
+        const URL_SERVER = 'https://localhost';
+        const LOADING_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-loader-circle-icon lucide-loader-circle animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
+
+        const ELEMENT_MESSAGE = document.getElementById('read_chat_message');
+        const BTN_CHAT = document.getElementById('read_chat_btn');
+
+        var estaLeyendo = false;
+
+        async function empezarLeerChat() {
+
+            ELEMENT_MESSAGE.innerHTML = `<div class="text-yellow-600 font-bold flex items-center space-x-2">${LOADING_ICON} <span>Cargando...</span></div>`;
+
+            // CERRAR CONEXION
+            if(estaLeyendo) {
+
+                const response = await fetch(`${URL_SERVER}/read_chat/finish`, { method: 'GET', });
+
+                if(!response.ok) ELEMENT_MESSAGE.innerHTML = `<span class="text-red-600 font-bold">¡Parece que ocurrió un error!</span>`;
+                else {
+
+                    const data = await response.json();
+
+                    if(data.error) ELEMENT_MESSAGE.innerHTML = `<span class="text-red-600 font-bold">¡${data.message}!</span>`;
+                    else {
+                        ELEMENT_MESSAGE.innerHTML = `<span class="text-green-600 font-bold">¡Conexión parada!</span>`;
+                        estaLeyendo = false;
+
+                        BTN_CHAT.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plug-zap-icon lucide-plug-zap"><path d="M6.3 20.3a2.4 2.4 0 0 0 3.4 0L12 18l-6-6-2.3 2.3a2.4 2.4 0 0 0 0 3.4Z"/><path d="m2 22 3-3"/><path d="M7.5 13.5 10 11"/><path d="M10.5 16.5 13 14"/><path d="m18 3-4 4h6l-4 4"/></svg> Empezar';
+                        BTN_CHAT.classList.add('bg-green-600', 'hover:bg-green-700');
+                        BTN_CHAT.classList.remove('bg-red-700', 'hover:bg-red-700');
+                    }
+                }
+
+            } else {
+
+                const response = await fetch(`${URL_SERVER}/read_chat/start`, { method: 'GET', });
+
+                if(!response.ok) ELEMENT_MESSAGE.innerHTML = `<span class="text-red-600 font-bold">¡Parece que ocurrió un error!</span>`;
+                else {
+
+                    const data = await response.json();
+
+                    if(data.error) ELEMENT_MESSAGE.innerHTML = `<span class="text-red-600 font-bold">¡${data.message}!</span>`;
+                    else {
+                        ELEMENT_MESSAGE.innerHTML = `<span class="text-green-600 font-bold">¡Conexión establecida!</span>`;
+                        estaLeyendo = true;
+
+                        BTN_CHAT.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-unplug-icon lucide-unplug"><path d="m19 5 3-3"/><path d="m2 22 3-3"/><path d="M6.3 20.3a2.4 2.4 0 0 0 3.4 0L12 18l-6-6-2.3 2.3a2.4 2.4 0 0 0 0 3.4Z"/><path d="M7.5 13.5 10 11"/><path d="M10.5 16.5 13 14"/><path d="m12 6 6 6 2.3-2.3a2.4 2.4 0 0 0 0-3.4l-2.6-2.6a2.4 2.4 0 0 0-3.4 0Z"/></svg> Terminar';
+                        BTN_CHAT.classList.remove('bg-green-600', 'hover:bg-green-700');
+                        BTN_CHAT.classList.add('bg-red-700', 'hover:bg-red-700');
+                    }
+                }
+            }
+        }
+
+    </script>
+    
+</body>
+</html>
